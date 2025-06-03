@@ -23,3 +23,4 @@ This app is configured for Vercel deployment with `vercel.json`.
 ## Note
 
 This is a demo/internal testing application with hardcoded API keys. # Auto-deploy test Mon Jun  2 17:57:35 PDT 2025
+# Force deployment trigger Mon Jun  2 20:18:00 PDT 2025
