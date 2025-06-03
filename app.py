@@ -7,15 +7,30 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import uuid
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-for-sessions'  # Change this in production
+app.secret_key = os.getenv('SECRET_KEY', 'your-secret-key-for-sessions')
 
-# API Keys (hardcoded as requested)
-OPENAI_API_KEY = "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"
-GROK_API_KEY = "xai-3xayae3jzDIYripTNLPXhPs7p8ZEgj84RJb8pZS6jYQ00YXQLBInLEOMvYG1FX4GUfrgj0vS2Y9VWQqD"
-# GEMINI_API_KEY = "AIzaSyAqa_CfOjzRtjzW7ncqki1cnLZhV1Ky8-4"
-GEMINI_API_KEY = "AIzaSyBfRb8dRVthgwQV8-_bbCVjYx1J9v2goNI"
+# API Keys from environment variables
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+GROK_API_KEY = os.getenv('GROK_API_KEY')
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+
+# Validate that all required API keys are present
+if not all([OPENAI_API_KEY, GROK_API_KEY, GEMINI_API_KEY]):
+    missing_keys = []
+    if not OPENAI_API_KEY:
+        missing_keys.append('OPENAI_API_KEY')
+    if not GROK_API_KEY:
+        missing_keys.append('GROK_API_KEY')
+    if not GEMINI_API_KEY:
+        missing_keys.append('GEMINI_API_KEY')
+    
+    raise ValueError(f"Missing required environment variables: {', '.join(missing_keys)}")
 
 # Business analysis prompts for Vamo
 BUSINESS_ANALYSIS_PROMPTS = {
