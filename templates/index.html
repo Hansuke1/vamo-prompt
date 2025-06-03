@@ -54,6 +54,44 @@
             font-size: 1.1rem;
         }
 
+        .fancy-tagline {
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
+            background-size: 400% 400%;
+            background-position: 0% 50%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 600;
+            text-shadow: 0 0 30px rgba(102, 126, 234, 0.3);
+            filter: drop-shadow(0 0 10px rgba(102, 126, 234, 0.2));
+            position: relative;
+        }
+
+        .fancy-tagline::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c, #4facfe, #00f2fe);
+            background-size: 400% 400%;
+            background-position: 0% 50%;
+            border-radius: 8px;
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(8px);
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
         .prompt-section {
             margin-bottom: 30px;
             background: #f8f9fa;
@@ -400,7 +438,7 @@
     <div class="container">
         <div class="header">
             <h1>🍍 Vamo Business Analysis</h1>
-            <p>The billion dollar good vibes happen here</p>
+            <p class="fancy-tagline">This is where the billion dollar good vibes gets cooked</p>
         </div>
 
         <div class="prompt-section">
