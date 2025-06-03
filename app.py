@@ -303,7 +303,7 @@ def analyze_business():
             json_system_prompt = f"{system_prompt}\n\nPlease respond with a valid JSON object that matches this exact schema: {json.dumps(BUSINESS_ANALYSIS_SCHEMA)}\n\nDo not include any text before or after the JSON object."
             
             payload = {
-                "model": "grok-2-1212",
+                "model": "grok-3-mini",
                 "messages": [
                     {"role": "system", "content": json_system_prompt},
                     {"role": "user", "content": user_content}
@@ -331,28 +331,28 @@ def analyze_business():
                     
                     parsed_analysis = json.loads(clean_response)
                     return {
-                        "model": "Grok-2-1212",
+                        "model": "Grok-3-mini",
                         "response": parsed_analysis,
                         "raw_response": assistant_message,
                         "error": None
                     }
                 except json.JSONDecodeError as e:
                     return {
-                        "model": "Grok-2-1212",
+                        "model": "Grok-3-mini",
                         "response": None,
                         "raw_response": assistant_message,
                         "error": f"JSON Parse Error: {str(e)} - Raw response: {assistant_message[:200]}..."
                     }
             else:
                 return {
-                    "model": "Grok-2-1212",
+                    "model": "Grok-3-mini",
                     "response": None,
                     "raw_response": None,
                     "error": f"HTTP {response.status_code}: {response.text}"
                 }
         except Exception as e:
             return {
-                "model": "Grok-2-1212",
+                "model": "Grok-3-mini",
                 "response": None,
                 "raw_response": None,
                 "error": str(e)
@@ -360,7 +360,7 @@ def analyze_business():
     
     def call_gemini_structured(system_prompt, user_content):
         try:
-            model = genai.GenerativeModel('gemini-2.0-flash')
+            model = genai.GenerativeModel('gemini-2.5-flash-preview-05-20')
             
             full_prompt = f"{system_prompt}\n\nAnalyze this company data and respond with a valid JSON object matching this schema: {json.dumps(BUSINESS_ANALYSIS_SCHEMA)}\n\nCompany data: {user_content}\n\nJSON Response:"
             
@@ -381,21 +381,21 @@ def analyze_business():
                 
                 parsed_analysis = json.loads(response_text)
                 return {
-                    "model": "Gemini 2.0 Flash",
+                    "model": "Gemini 2.5 Flash Preview",
                     "response": parsed_analysis,
                     "raw_response": response.text,
                     "error": None
                 }
             except json.JSONDecodeError as e:
                 return {
-                    "model": "Gemini 2.0 Flash",
+                    "model": "Gemini 2.5 Flash Preview",
                     "response": None,
                     "raw_response": response.text,
                     "error": f"JSON Parse Error: {str(e)}"
                 }
         except Exception as e:
             return {
-                "model": "Gemini 2.0 Flash",
+                "model": "Gemini 2.5 Flash Preview",
                 "response": None,
                 "raw_response": None,
                 "error": str(e)
