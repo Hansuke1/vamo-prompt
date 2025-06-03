@@ -20,17 +20,18 @@ OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 GROK_API_KEY = os.getenv('GROK_API_KEY')
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 
-# Validate that all required API keys are present
-if not all([OPENAI_API_KEY, GROK_API_KEY, GEMINI_API_KEY]):
-    missing_keys = []
-    if not OPENAI_API_KEY:
-        missing_keys.append('OPENAI_API_KEY')
-    if not GROK_API_KEY:
-        missing_keys.append('GROK_API_KEY')
-    if not GEMINI_API_KEY:
-        missing_keys.append('GEMINI_API_KEY')
-    
-    raise ValueError(f"Missing required environment variables: {', '.join(missing_keys)}")
+# Validate that all required API keys are present - but only fail at runtime, not import time
+def validate_api_keys():
+    if not all([OPENAI_API_KEY, GROK_API_KEY, GEMINI_API_KEY]):
+        missing_keys = []
+        if not OPENAI_API_KEY:
+            missing_keys.append('OPENAI_API_KEY')
+        if not GROK_API_KEY:
+            missing_keys.append('GROK_API_KEY')
+        if not GEMINI_API_KEY:
+            missing_keys.append('GEMINI_API_KEY')
+        
+        raise ValueError(f"Missing required environment variables: {', '.join(missing_keys)}")
 
 # Business analysis prompts for Vamo
 BUSINESS_ANALYSIS_PROMPTS = {
@@ -117,7 +118,8 @@ BUSINESS_ANALYSIS_SCHEMA = {
 }
 
 # Configure clients
-genai.configure(api_key=GEMINI_API_KEY)
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 @app.route('/')
 def index():
@@ -131,6 +133,12 @@ def get_prompts():
 
 @app.route('/api/analyze-business', methods=['POST'])
 def analyze_business():
+    # Validate API keys are present
+    try:
+        validate_api_keys()
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 500
+    
     data = request.get_json()
     company_name = data.get('company_name', '')
     company_tagline = data.get('company_tagline', '')
@@ -347,8 +355,8 @@ def analyze_business():
     
     return jsonify(results)
 
+# For Vercel deployment - this needs to be accessible
+application = app
+
 if __name__ == '__main__':
-    app.run(debug=True, host='localhost', port=3002)
-else:
-    # For Vercel deployment
-    app.debug = False 
+    app.run(debug=True, host='localhost', port=3002) 
