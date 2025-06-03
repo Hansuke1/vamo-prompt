@@ -447,7 +447,11 @@
         
         <div id="businessAnalysis" class="conversations-grid">
             <div class="analysis-card">
-                <div class="model-name openai">OpenAI GPT-4o-mini</div>
+                <div class="model-name openai">OpenAI GPT-4.1</div>
+                <div class="empty-state">Enter company data and click "Analyze Business"...</div>
+            </div>
+            <div class="analysis-card">
+                <div class="model-name openai">OpenAI GPT-4.1-mini</div>
                 <div class="empty-state">Enter company data and click "Analyze Business"...</div>
             </div>
             <div class="analysis-card">
@@ -612,7 +616,7 @@ Serving in all 50 states!
 
         function renderAnalysisResults(results) {
             const cards = businessAnalysisDiv.querySelectorAll('.analysis-card');
-            const models = ['openai', 'grok', 'gemini'];
+            const models = ['openai_gpt4', 'openai_gpt4_mini', 'grok', 'gemini'];
             
             models.forEach((model, index) => {
                 const card = cards[index];
