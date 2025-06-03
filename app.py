@@ -162,7 +162,7 @@ def analyze_business():
         "content": markdown_content
     })
     
-    def call_openai_structured(system_prompt, user_content):
+    def call_openai_gpt4_structured(system_prompt, user_content):
         try:
             headers = {
                 "Authorization": f"Bearer {OPENAI_API_KEY}",
@@ -170,7 +170,7 @@ def analyze_business():
             }
             
             payload = {
-                "model": "gpt-4o-mini",
+                "model": "gpt-4.1",
                 "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_content}
@@ -199,21 +199,21 @@ def analyze_business():
                 try:
                     parsed_analysis = json.loads(assistant_message)
                     return {
-                        "model": "OpenAI GPT-4o-mini",
+                        "model": "OpenAI GPT-4.1",
                         "response": parsed_analysis,
                         "raw_response": assistant_message,
                         "error": None
                     }
                 except json.JSONDecodeError as e:
                     return {
-                        "model": "OpenAI GPT-4o-mini",
+                        "model": "OpenAI GPT-4.1",
                         "response": None,
                         "raw_response": assistant_message,
                         "error": f"JSON Parse Error: {str(e)}"
                     }
             else:
                 return {
-                    "model": "OpenAI GPT-4o-mini",
+                    "model": "OpenAI GPT-4.1",
                     "response": None,
                     "raw_response": None,
                     "error": f"HTTP {response.status_code}: {response.text}"
@@ -221,12 +221,77 @@ def analyze_business():
                 
         except Exception as e:
             return {
-                "model": "OpenAI GPT-4o-mini",
+                "model": "OpenAI GPT-4.1",
                 "response": None,
                 "raw_response": None,
                 "error": str(e)
             }
-    
+
+    def call_openai_gpt4_mini_structured(system_prompt, user_content):
+        try:
+            headers = {
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json"
+            }
+            
+            payload = {
+                "model": "gpt-4.1-mini",
+                "messages": [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_content}
+                ],
+                "response_format": {
+                    "type": "json_schema",
+                    "json_schema": {
+                        "name": "business_analysis",
+                        "strict": True,
+                        "schema": BUSINESS_ANALYSIS_SCHEMA
+                    }
+                },
+                "temperature": 0.1
+            }
+            
+            response = requests.post(
+                "https://api.openai.com/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=30
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                assistant_message = data["choices"][0]["message"]["content"]
+                try:
+                    parsed_analysis = json.loads(assistant_message)
+                    return {
+                        "model": "OpenAI GPT-4.1-mini",
+                        "response": parsed_analysis,
+                        "raw_response": assistant_message,
+                        "error": None
+                    }
+                except json.JSONDecodeError as e:
+                    return {
+                        "model": "OpenAI GPT-4.1-mini",
+                        "response": None,
+                        "raw_response": assistant_message,
+                        "error": f"JSON Parse Error: {str(e)}"
+                    }
+            else:
+                return {
+                    "model": "OpenAI GPT-4.1-mini",
+                    "response": None,
+                    "raw_response": None,
+                    "error": f"HTTP {response.status_code}: {response.text}"
+                }
+                
+        except Exception as e:
+            return {
+                "model": "OpenAI GPT-4.1-mini",
+                "response": None,
+                "raw_response": None,
+                "error": str(e)
+            }
+
     def call_grok_structured(system_prompt, user_content):
         try:
             headers = {
@@ -337,13 +402,15 @@ def analyze_business():
             }
     
     # Call all models concurrently
-    with ThreadPoolExecutor(max_workers=3) as executor:
-        future_openai = executor.submit(call_openai_structured, system_prompt, user_content)
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        future_openai_gpt4 = executor.submit(call_openai_gpt4_structured, system_prompt, user_content)
+        future_openai_gpt4_mini = executor.submit(call_openai_gpt4_mini_structured, system_prompt, user_content)
         future_grok = executor.submit(call_grok_structured, system_prompt, user_content)
         future_gemini = executor.submit(call_gemini_structured, system_prompt, user_content)
         
         results = {
-            "openai": future_openai.result(),
+            "openai_gpt4": future_openai_gpt4.result(),
+            "openai_gpt4_mini": future_openai_gpt4_mini.result(),
             "grok": future_grok.result(),
             "gemini": future_gemini.result()
         }
